@@ -4,4 +4,4 @@
 在 config.toml 的 [reporters.名字] 里 `enabled = true` 才会运行。
 """
 
-from radar.reporters import markdown  # noqa: F401
+from radar.reporters import feishu, markdown  # noqa: F401

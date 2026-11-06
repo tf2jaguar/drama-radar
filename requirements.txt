@@ -1,0 +1,2 @@
+# 飞书报告器依赖。采集与分析本身只用标准库；requests 仅供 tools/notify.py 推送到飞书。
+requests>=2.31.0

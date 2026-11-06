@@ -20,7 +20,7 @@ fetch_details = true             # 抓详情页：精确热度、评分人数、
 max_detail_failure_ratio = 0.10  # 详情页失败超过这个比例，本次不写快照
 track_dropped_days = 14          # 掉榜后继续追踪多少天
 # 如实标明身份，方便对方识别。部署后把地址换成你的仓库地址。
-user_agent = "drama-radar/0.1 (+https://github.com/SentDz/drama-radar; public ranking research)"
+user_agent = "drama-radar/0.1 (+https://github.com/tf2jaguar/drama-radar; public ranking research)"
 
 # 观察列表：不在榜上也每天追踪。写剧名或红果链接都可以。
 watchlist = [
@@ -45,3 +45,8 @@ rating = 0.20
 
 [reporters.markdown]
 enabled = true              # 每天生成一份 Markdown 简报，放在 reports/ 下
+
+[reporters.feishu]
+enabled = true              # 每天把「今日要点」推送到飞书群机器人，一天只发一次
+                            # 密钥走 GitHub Secrets 的环境变量 FSKEY（必填）/ FSSECRET（签名可选），不写进仓库
+view_url = "https://tf2jaguar.github.io/drama-radar"   # 要点末尾附上的看板地址

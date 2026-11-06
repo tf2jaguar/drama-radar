@@ -50,6 +50,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
       - name: Test
         run: python -m unittest discover -s tests -t . -v
 
@@ -74,6 +77,10 @@ jobs:
 
       - name: Build site
         if: steps.decide.outputs.publish == 'true'
+        env:
+          # 飞书机器人密钥：GitHub Secrets 里配 FSKEY（必填）/ FSSECRET（签名校验密钥，可选）
+          FSKEY: ${{ secrets.FSKEY }}
+          FSSECRET: ${{ secrets.FSSECRET }}
         run: python -m radar build --out _site
 
       - name: Commit data

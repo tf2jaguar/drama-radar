@@ -3,7 +3,7 @@
 每天自动采集红果短剧官网公开的 4 个热播榜（综合 / 真人 / AI / 漫剧，各前 100 名），以及每部在榜剧的详情，
 算出**热门剧、飙升剧、潜力新剧、题材冷热**，发布成 GitHub Pages 上的分析看板，并导出 CSV 方便自己再分析。
 
-看板地址：**https://sentdz.github.io/drama-radar/**
+看板地址：**https://tf2jaguar.github.io/drama-radar/**
 
 参考了 [hongguo-radar](https://github.com/2252399314-cyber/hongguo-radar) 的思路，代码重新写过。2026-10-13 至 10-16 的历史数据迁移自 hongguo-radar（转换脚本见 [`scripts/import_hongguo_radar.py`](scripts/import_hongguo_radar.py)，快照里带 `imported_from` 标记），10-17 起为本项目自己采集。主要改进：
 
@@ -40,7 +40,8 @@
 
 ## 本地运行
 
-需要 Python 3.11 及以上，只用标准库，不用装依赖。
+需要 Python 3.11 及以上。采集与分析本身只用标准库；只有启用了飞书通知报告器才需要
+`requests`（`pip install -r requirements.txt`，不配飞书时可不装）。
 
 ```bash
 python3 -m unittest discover -s tests -t .   # 测试
@@ -57,6 +58,20 @@ python3 -m radar plugins                     # 列出已注册的数据源、分
 都在 [`config.toml`](config.toml)：要抓哪些榜、请求间隔、观察列表（不在榜上也每天追踪的剧）、新剧的天数界限、
 题材动量对比天数、潜力分权重、是否生成每日简报等。改完提交即可。
 
+## 飞书通知（可选）
+
+把看板总览的「今日要点」每天推送到飞书群机器人，**一天只发一次**。
+
+1. 在飞书群里添加一个**自定义机器人**，拿到 webhook 地址里那串 key，在 GitHub 仓库的
+   **Settings → Secrets and variables → Actions → New repository secret** 里加：
+   - `FSKEY`：必填，机器人 webhook 里的 key；
+   - `FSSECRET`：可选，机器人的签名校验密钥（配了才做签名）。
+2. 提交即可。每次官方刷新后采集成功并重新部署的那一次，会把当日要点发到群里；
+   其余几次定时任务因官方未刷新而跳过，所以天然一天一次（`data/state/hongguo/feishu_sent.json`
+   再兜底，避免同一天重复部署时重发）。没配 `FSKEY` 时不发送，也不影响站点生成。
+
+发送失败只打日志、不影响采集与部署结果。内容格式为「短剧雷达 · 日期 今日要点」加若干条要点。
+
 ## 目录
 
 ```
@@ -64,8 +79,9 @@ radar/
   core/        配置、HTTP、存储、时间、插件注册表（与平台无关）
   sources/     数据源插件（hongguo/）
   analysis/    分析器插件（metrics、boards、movers、potential、tags、lifecycle、dramas、exports、insights、status）
-  reporters/   报告器插件（markdown）
+  reporters/   报告器插件（markdown、feishu）
   site.py      组装 _site/
+tools/         第三方工具（tools/notify.py 飞书推送，来自 cron-job 的通用通知模块）
 web/           看板（原生 JS + ECharts，无需构建）
 data/          采集到的数据：snapshots/ 每天一份原始快照，catalog/ 剧集目录，state/ 采集缓存
 reports/       每日 Markdown 简报
